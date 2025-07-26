@@ -3,7 +3,7 @@ const Person = require('./models/person')
 
 const express = require('express')
 const app = express()
-var morgan = require('morgan')
+// var morgan = require('morgan')
 // const cors = require('cors')
 
 // app.use(cors())
@@ -11,13 +11,12 @@ app.use(express.json())
 // app.use(morgan('tiny'))
 app.use(express.static('dist'))
 
-let persons = []
-
+// eslint-disable-next-line no-unused-vars
 app.get('/', (request, response, next) => {
   response.send('<h1>Hello World!</h1>')
 })
 
-app.get('/info', (request, response, next) => {
+app.get('/info', (request, response) => {
   const date = new Date()
   Person.countDocuments({}).then(count => {
     response.send(`
@@ -27,7 +26,7 @@ app.get('/info', (request, response, next) => {
   })
 })
 
-app.get('/api/persons', (request, response, next) => {
+app.get('/api/persons', (request, response) => {
   Person.find({}).then((people) => {
     response.json(people)
   })
@@ -35,22 +34,23 @@ app.get('/api/persons', (request, response, next) => {
 
 app.get('/api/persons/:id', (request, response, next) => {
   Person.findById(request.params.id)
-  .then(person => {
-    if(person){
-      response.json(person)
-    }else{
-      console.log('nonexistent')
-      response.status(404).end()
-    }
-  })
-  .catch(error => next(error))
+    .then(person => {
+      if(person){
+        response.json(person)
+      }else{
+        console.log('nonexistent')
+        response.status(404).end()
+      }
+    })
+    .catch(error => next(error))
 })
 
 
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
     .then(result => {
-    response.status(204).end()
+      response.json(result)
+      response.status(204).end()
     })
     .catch(error => next(error))
 
@@ -69,10 +69,10 @@ app.post('/api/persons', (request, response, next) => {
   })
 
   person.save()
-  .then((savedPerson) => {
-    response.json(savedPerson)
-  })
-  .catch(error => next(error))
+    .then((savedPerson) => {
+      response.json(savedPerson)
+    })
+    .catch(error => next(error))
 })
 
 
